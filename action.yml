@@ -37,13 +37,22 @@ runs:
             -H "Accept: application/vnd.github+json" \
             /repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files \
             | jq -r '.[].filename')  # 使用 -r 获取原始文本输出
+          
+          # 将 REMOVE_SUFFIX 用逗号分割为数组
+          IFS=',' read -ra SUFFIXES <<< "${{ inputs.REMOVE_SUFFIX }}"
 
           # 处理文件路径，拼接成完整的 URL
           for file in $files; do
             if [[ $file == *.md ]]; then
               # 去掉路径前缀和后缀
               modified_file="${file#${{ inputs.REMOVE_PREFIX }}}"   # 删除路径前缀
-              modified_file="${modified_file%${{ inputs.REMOVE_SUFFIX }}}"  # 删除路径后缀
+
+              # 删除路径后缀
+              for suffix in "${SUFFIXES[@]}"; do
+                if [[ "$modified_file" == *"$suffix" ]]; then
+                  modified_file="${modified_file%$suffix}"
+                fi
+              done
 
               # 拼接 URL
               file_url="${{ inputs.previewUrl }}${modified_file}"
