@@ -13,6 +13,8 @@ inputs:
     required: true
   GITHUB_TOKEN:
     required: true
+  PREFIX:
+    required: false
   REMOVE_PREFIX:
     required: false
   REMOVE_SUFFIX:
@@ -55,7 +57,7 @@ runs:
               done
 
               # 拼接 URL
-              file_url="${{ inputs.previewUrl }}${modified_file}"
+              file_url="${{ inputs.previewUrl }}${{ inputs.PREFIX }}${modified_file}"
               all_file_urls="${all_file_urls}\n${file_url}"
             fi
           done
